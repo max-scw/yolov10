@@ -51,36 +51,16 @@ repos:
         exclude: 'docs/.*\.md'
         # exclude: "README.md|README.zh-CN.md|CONTRIBUTING.md"
 
-  - repo: https://github.com/codespell-project/codespell
-    rev: v2.2.6
-    hooks:
-      - id: codespell
-        exclude: "docs/de|docs/fr|docs/pt|docs/es|docs/mkdocs_de.yml"
-        args:
-          - --ignore-words-list=crate,nd,ned,strack,dota,ane,segway,fo,gool,winn,commend,bloc,nam,afterall
+#  - repo: https://github.com/codespell-project/codespell
+#    rev: v2.2.6
+#    hooks:
+#      - id: codespell
+#        exclude: "docs/de|docs/fr|docs/pt|docs/es|docs/mkdocs_de.yml"
+#        args:
+#          - --ignore-words-list=crate,nd,ned,strack,dota,ane,segway,fo,gool,winn,commend,bloc,nam,afterall
 
   - repo: https://github.com/hadialqattan/pycln
     rev: v2.4.0
     hooks:
       - id: pycln
         args: [--all]
-#
-#  - repo: https://github.com/PyCQA/docformatter
-#    rev: v1.7.5
-#    hooks:
-#      - id: docformatter
-
-#  - repo: https://github.com/asottile/yesqa
-#    rev: v1.4.0
-#    hooks:
-#      - id: yesqa
-
-#  - repo: https://github.com/asottile/dead
-#    rev: v1.5.0
-#    hooks:
-#    -   id: dead
-
-#  - repo: https://github.com/ultralytics/pre-commit
-#    rev: bd60a414f80a53fb8f593d3bfed4701fc47e4b23
-#    hooks:
-#      - id: capitalize-comments

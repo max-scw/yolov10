@@ -7,11 +7,21 @@ from .train import YOLOv10DetectionTrainer
 from huggingface_hub import PyTorchModelHubMixin
 from .card import card_template_text
 
+from pathlib import Path
+from typing import Union, List
+
 class YOLOv10(Model, PyTorchModelHubMixin, model_card_template=card_template_text):
 
-    def __init__(self, model="yolov10n.pt", task=None, verbose=False, 
-                 names=None):
-        super().__init__(model=model, task=task, verbose=verbose)
+    def __init__(
+            self,
+            model: Union[str, Path] = "yolov10n.pt",
+            task: str = None,
+            verbose: bool = False,
+            names: List[str] = None
+    ):
+        # initialize parent class
+        super().__init__(model, task, verbose)
+        # add new attribute specific for this class
         if names is not None:
             setattr(self.model, 'names', names)
 

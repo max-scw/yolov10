@@ -3,11 +3,13 @@
 import math
 import random
 from copy import deepcopy
+from pathlib import Path
 
 import cv2
 import numpy as np
 import torch
 import torchvision.transforms as T
+from setuptools.command.egg_info import overwrite_arg
 
 from ultralytics.utils import LOGGER, colorstr
 from ultralytics.utils.checks import check_version
@@ -16,6 +18,10 @@ from ultralytics.utils.metrics import bbox_ioa
 from ultralytics.utils.ops import segment2box, xyxyxyxy2xywhr
 from ultralytics.utils.torch_utils import TORCHVISION_0_10, TORCHVISION_0_11, TORCHVISION_0_13
 from .utils import polygons2masks, polygons2masks_overlap
+from .augmentation2 import build_albumentations_pipeline
+
+from typing import Union
+
 
 DEFAULT_MEAN = (0.0, 0.0, 0.0)
 DEFAULT_STD = (1.0, 1.0, 1.0)
@@ -825,26 +831,36 @@ class Albumentations:
     compression.
     """
 
-    def __init__(self, p=1.0):
+    def __init__(
+            self,
+            p: float = 1.0,
+            config_file: Union[str, Path] = None,
+            overwrite_p: bool = False,
+    ):
         """Initialize the transform object for YOLO bbox formatted params."""
         self.p = p
         self.transform = None
+        self.config_file = config_file
         prefix = colorstr("albumentations: ")
         try:
             import albumentations as A
 
             check_version(A.__version__, "1.0.3", hard=True)  # version requirement
+            # TODO: HERE
 
-            # Transforms
-            T = [
-                A.Blur(p=0.01),
-                A.MedianBlur(p=0.01),
-                A.ToGray(p=0.01),
-                A.CLAHE(p=0.01),
-                A.RandomBrightnessContrast(p=0.0),
-                A.RandomGamma(p=0.0),
-                A.ImageCompression(quality_lower=75, p=0.0),
-            ]
+            if config_file:
+                T = build_albumentations_pipeline(config_file, self.p, verbose=True, overwrite_p=overwrite_p)
+            else:
+                # Transforms
+                T = [
+                    A.Blur(p=0.01),
+                    A.MedianBlur(p=0.01),
+                    A.ToGray(p=0.01),
+                    A.CLAHE(p=0.01),
+                    A.RandomBrightnessContrast(p=0.0),
+                    A.RandomGamma(p=0.0),
+                    A.ImageCompression(quality_lower=75, p=0.0),
+                ]
             self.transform = A.Compose(T, bbox_params=A.BboxParams(format="yolo", label_fields=["class_labels"]))
 
             LOGGER.info(prefix + ", ".join(f"{x}".replace("always_apply=False, ", "") for x in T if x.p))
@@ -862,7 +878,7 @@ class Albumentations:
             labels["instances"].normalize(*im.shape[:2][::-1])
             bboxes = labels["instances"].bboxes
             # TODO: add supports of segments and keypoints
-            if self.transform and random.random() < self.p:
+            if self.transform and (self.config_file or (random.random() < self.p)):
                 new = self.transform(image=im, bboxes=bboxes, class_labels=cls)  # transformed
                 if len(new["class_labels"]) > 0:  # skip update if no bbox in new im
                     labels["img"] = new["image"]
@@ -970,7 +986,15 @@ class Format:
         return masks, instances, cls
 
 
-def v8_transforms(dataset, imgsz, hyp, stretch=False):
+def v8_transforms(
+        dataset,
+        imgsz,
+        hyp,
+        stretch: bool = False,
+        # probability: float = 1.0,
+        # config_file: Union[str, Path]=None,
+        # overwrite_p: bool = False
+):
     """Convert images to a size suitable for YOLOv8 training."""
     pre_transform = Compose(
         [
@@ -995,16 +1019,24 @@ def v8_transforms(dataset, imgsz, hyp, stretch=False):
         elif flip_idx and (len(flip_idx) != kpt_shape[0]):
             raise ValueError(f"data.yaml flip_idx={flip_idx} length must be equal to kpt_shape[0]={kpt_shape[0]}")
 
-    return Compose(
-        [
+    albumentations_p = hyp.albumentations_p if "albumentations_p" in hyp else 1.0
+    config_file = hyp.albumentations_config_file if "albumentations_config_file" in hyp else None
+    overwrite_p = hyp.overwrite_p if "overwrite_p" in hyp else False
+
+    transforms = [
             pre_transform,
             MixUp(dataset, pre_transform=pre_transform, p=hyp.mixup),
-            Albumentations(p=1.0),
+            Albumentations(p=albumentations_p, config_file=config_file, overwrite_p=overwrite_p),
             RandomHSV(hgain=hyp.hsv_h, sgain=hyp.hsv_s, vgain=hyp.hsv_v),
+        ]
+    if config_file is None:
+        # add default flip classes to recreate the original performance
+        transforms += [
             RandomFlip(direction="vertical", p=hyp.flipud),
             RandomFlip(direction="horizontal", p=hyp.fliplr, flip_idx=flip_idx),
         ]
-    )  # transforms
+
+    return Compose(transforms)  # transforms
 
 
 # Classification augmentations -----------------------------------------------------------------------------------------

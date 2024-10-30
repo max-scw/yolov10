@@ -192,7 +192,7 @@ class Model(nn.Module):
             )
         )
 
-    def _new(self, cfg: str, task=None, model=None, verbose=False) -> None:
+    def _new(self, cfg: str, task: str = None, model: str = None, verbose: bool = False) -> None:
         """
         Initializes a new model and infers the task type from the model definitions.
 
@@ -236,17 +236,20 @@ class Model(nn.Module):
             self.model, self.ckpt = weights, None
             self.task = task or guess_model_task(weights)
             self.ckpt_path = weights
+
         self.overrides["model"] = weights
         self.overrides["task"] = self.task
         self.model_name = weights
 
     def _check_is_pytorch_model(self) -> None:
         """Raises TypeError is model is not a PyTorch model."""
-        pt_str = isinstance(self.model, (str, Path)) and Path(self.model).suffix == ".pt"
+
+        suffixes_allowed = [".pt", ".safetensors"]
+        pt_str = isinstance(self.model, (str, Path)) and Path(self.model).suffix in suffixes_allowed
         pt_module = isinstance(self.model, nn.Module)
         if not (pt_module or pt_str):
             raise TypeError(
-                f"model='{self.model}' should be a *.pt PyTorch model to run this method, but is a different format. "
+                f"model='{self.model}' should be a {' or '.join(suffixes_allowed)} PyTorch model to run this method, but is a different format. "
                 f"PyTorch models can train, val, predict and export, i.e. 'model.train(data=...)', but exported "
                 f"formats like ONNX, TensorRT etc. only support 'predict' and 'val' modes, "
                 f"i.e. 'yolo predict model=yolov8n.onnx'.\nTo run CUDA or MPS inference please pass the device "
@@ -297,7 +300,7 @@ class Model(nn.Module):
         self.model.load(weights)
         return self
 
-    def save(self, filename: Union[str, Path] = "saved_model.pt", use_dill=True) -> None:
+    def save(self, filename: Union[str, Path] = "saved_model.pt", use_dill: bool = True) -> None:
         """
         Saves the current model state to a file.
 
@@ -593,7 +596,7 @@ class Model(nn.Module):
         self,
         trainer=None,
         **kwargs,
-    ):
+    ) -> Union[dict, None]:
         """
         Trains the model using the specified dataset and training configuration.
 
@@ -665,8 +668,8 @@ class Model(nn.Module):
 
     def tune(
         self,
-        use_ray=False,
-        iterations=10,
+        use_ray: bool = False,
+        iterations: int = 10,
         *args,
         **kwargs,
     ):

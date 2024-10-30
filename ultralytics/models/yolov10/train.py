@@ -12,7 +12,7 @@ class YOLOv10DetectionTrainer(DetectionTrainer):
             self.test_loader, save_dir=self.save_dir, args=copy(self.args), _callbacks=self.callbacks
         )
 
-    def get_model(self, cfg=None, weights=None, verbose=True):
+    def get_model(self, cfg: dict = None, weights=None, verbose: bool = True):
         """Return a YOLO detection model."""
         model = YOLOv10DetectionModel(cfg, nc=self.data["nc"], verbose=verbose and RANK == -1)
         if weights:
