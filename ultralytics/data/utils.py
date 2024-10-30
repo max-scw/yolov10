@@ -299,7 +299,12 @@ def check_det_dataset(dataset, autodownload=True):
     # Resolve paths
     path = Path(extract_dir or data.get("path") or Path(data.get("yaml_file", "")).parent)  # dataset root
     if not path.is_absolute():
-        path = (DATASETS_DIR / path).resolve()
+        # infer which folder is meant
+        for p in [Path(), DATASETS_DIR]:
+            path_ = (p / path).resolve()
+            if path_.is_dir():
+                path = path_
+                break
 
     # Set paths
     data["path"] = path  # download scripts
