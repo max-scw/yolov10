@@ -170,7 +170,7 @@ class YOLODataset(BaseDataset):
                 bgr=hyp.bgr if self.augment else 0.0,  # only affect training.
             )
         )
-        return transforms  # FIXME: transforms?
+        return transforms
 
     def close_mosaic(self, hyp):
         """Sets mosaic, copy_paste and mixup options to 0.0 and builds transformations."""

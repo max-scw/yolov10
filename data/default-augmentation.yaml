@@ -1,0 +1,19 @@
+# This file specifies the functions and corresponding arguments for data augmentation with python's albumentations package.
+# The probability of applying a transformation may be defined here but is overwritten by the argument 'albumentations_p' if the argument 'overwrite_p' is set to True.
+
+Blur:
+  p: 0.01
+MedianBlur:
+  p: 0.01
+ToGray:
+  p: 0.01
+CLAHE:
+  p: 0.01
+RandomBrightnessContrast:
+  p: 0.0
+RandomGamma:
+  p: 0.0
+ImageCompression:
+  quality_lower: 75
+  p: 0.0
+  

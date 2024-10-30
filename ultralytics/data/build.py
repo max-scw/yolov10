@@ -43,10 +43,10 @@ class InfiniteDataLoader(dataloader.DataLoader):
         """Returns the length of the batch sampler's sampler."""
         return len(self.batch_sampler.sampler)
 
-    def __iter__(self) -> dict:
+    def __iter__(self):
         """Creates a sampler that repeats indefinitely."""
         for _ in range(len(self)):
-            yield next(self.iterator)  # dict_keys(['im_file', 'ori_shape', 'resized_shape', 'img', 'cls', 'bboxes', 'batch_idx'])
+            yield next(self.iterator)
 
     def reset(self):
         """
