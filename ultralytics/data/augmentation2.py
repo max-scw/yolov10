@@ -101,7 +101,7 @@ def build_albumentations_pipeline(
     trafo_fncs = []
     for fnc, opts in config.items():
 
-        if p and (overwrite_p or ("p" not in opts)):
+        if p and (overwrite_p or (isinstance(opts, dict) and "p" not in opts)):
             opts["p"] = p
 
         # get transformation function
