@@ -115,15 +115,19 @@ if __name__ == "__main__":
     default_args = read_yaml_file(Path("ultralytics/cfg/default.yaml"))
 
     if (Path(args.weights).suffix == ".safetensors") and args.model_version and args.model_type:
+        print(f"Loading model YOLOv{args.model_version}{args.model_type} from safetensors file: {args.weights}")
         model = load_yolo_model(args.weights, args.model_version, args.model_type)
     elif Path(args.weights).suffix == ".pt":
+        print(f"Loading model from pickle file: {args.weights}")
         # load model from pickle file
         model = YOLOv10(model=args.weights)
     elif args.model:
         if args.weights:
+            print(f"Download pretrained model: {args.weights}")
             # load pretrained model
             model = YOLOv10.from_pretrained(args.weights)
         else:
+            print(f"Create new model with random weights.")
             # create new model from scratch
             model = YOLOv10(task=args.task)
     else:
