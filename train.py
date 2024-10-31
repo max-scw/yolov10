@@ -96,12 +96,17 @@ if __name__ == "__main__":
     parser.add_argument("--save", action="store_true", help="save train checkpoints and predict results")
     parser.add_argument("--resume", action="store_true", help="resume training from last checkpoint")
 
-
+    # augmentation
     parser.add_argument("--albumentations-p", type=float, default=None,
                         help="Probability to apply data augmentation based on the albumentations package.")
     parser.add_argument("--albumentations-config-file", type=str, default=None,
                         help="Path to config file with specifications for transformation functions to augment the training data.")
-
+    # augmentation / hyperparameter
+    parser.add_argument("--scale", type=float, default=0.5, help="Hyperparameter for augmentation: image scale (+/- gain)")
+    parser.add_argument("--mosaic", type=float, default=1.0,
+                        help="Hyperparameter for augmentation: image mosaic (probability)")
+    parser.add_argument("--erasing", type=float, default=0.4,
+                        help="Hyperparameter for augmentation: probability of random erasing during classification training (0-1)")
 
     args = parser.parse_args()
 
