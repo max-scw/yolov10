@@ -1,7 +1,6 @@
 from argparse import ArgumentParser
 
 from ultralytics import YOLOv10
-from ultralytics.models.yolov10.train import YOLOv10DetectionTrainer
 
 from safetensors.torch import load_model
 
@@ -115,9 +114,11 @@ if __name__ == "__main__":
 
     default_args = read_yaml_file(Path("ultralytics/cfg/default.yaml"))
 
-
-    if args.model_version and args.model_type:
+    if (Path(args.weights).suffix == ".safetensors") and args.model_version and args.model_type:
         model = load_yolo_model(args.weights, args.model_version, args.model_type)
+    elif Path(args.weights).suffix == ".pt":
+        # load model from pickle file
+        model = YOLOv10(model=args.weights)
     elif args.model:
         if args.weights:
             # load pretrained model
