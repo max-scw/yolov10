@@ -99,7 +99,7 @@ if __name__ == "__main__":
 
     parser.add_argument("--albumentations-p", type=float, default=None,
                         help="Probability to apply data augmentation based on the albumentations package.")
-    parser.add_argument("--augmentation-config-file", type=str, default=None,
+    parser.add_argument("--albumentations-config-file", type=str, default=None,
                         help="Path to config file with specifications for transformation functions to augment the training data.")
 
 
