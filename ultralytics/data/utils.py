@@ -317,7 +317,7 @@ def check_det_dataset(dataset, autodownload=True):
                 data[k] = str(x)
             else:
                 data[k] = [str((path / x).resolve()) for x in data[k]]
-
+    LOGGER.info(f"Using datasets: {data}")
     # Parse YAML
     val, s = (data.get(x) for x in ("val", "download"))
     if val:
