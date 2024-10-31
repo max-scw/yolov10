@@ -305,7 +305,7 @@ def check_det_dataset(dataset, autodownload=True):
             if path_.is_dir():
                 path = path_
                 break
-
+    LOGGER.info(f"Using dataset: {path.as_posix()}")
     # Set paths
     data["path"] = path  # download scripts
     for k in "train", "val", "test":
