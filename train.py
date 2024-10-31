@@ -80,7 +80,7 @@ if __name__ == "__main__":
 
     # training
     parser.add_argument("--epochs", type=int, default=300)
-    parser.add_argument("--batch-size", type=int, default=16, help="total batch size for all GPUs")
+    parser.add_argument("--batch", type=int, default=16, help="total batch size for all GPUs")
     parser.add_argument("--optimizer", type=str, default="auto", help="optimizer to use, choices=[SGD, Adam, Adamax, AdamW, NAdam, RAdam, RMSProp, auto]")
 
     # process
