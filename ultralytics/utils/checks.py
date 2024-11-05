@@ -612,12 +612,12 @@ def collect_system_info():
 
 def check_amp(model):
     """
-    This function checks the PyTorch Automatic Mixed Precision (AMP) functionality of a YOLOv8 model. If the checks
-    fail, it means there are anomalies with AMP on the system that may cause NaN losses or zero-mAP results, so AMP will
-    be disabled during training.
+    This function checks the PyTorch Automatic Mixed Precision (AMP) functionality of a YOLO (v8 or v10) model. If the
+    checks fail, it means there are anomalies with AMP on the system that may cause NaN losses or zero-mAP results, so
+    AMP will be disabled during training.
 
     Args:
-        model (nn.Module): A YOLOv8 model instance.
+        model (nn.Module): A YOLO (v8 or v10) model instance.
 
     Example:
         ```python
@@ -648,9 +648,22 @@ def check_amp(model):
     LOGGER.info(f"{prefix}running Automatic Mixed Precision (AMP) checks with YOLOv8n...")
     warning_msg = "Setting 'amp=True'. If you experience zero-mAP or NaN losses you can disable AMP with amp=False."
     try:
-        from ultralytics import YOLO
+        from ultralytics import YOLO, settings
 
-        assert amp_allclose(YOLO("yolov8n.pt"), im)
+        # first check if file exists locally
+        mdl = None
+        locations_to_check = [settings["weights_dir"], ""]
+        names_to_check = ["yolov8n.pt", "yolov10n.pt"]
+        for p in [Path(p) / nm for p in locations_to_check for nm in names_to_check]:
+            if p.exists():
+                mdl = YOLO(p)
+                LOGGER.debug(f"{prefix}Check Automatic Mixed Precision (AMP): local weights file found at {p.as_posix()}")
+                break
+        # download weight file if not found locally
+        if mdl is None:
+            mdl = YOLO("yolov8n.pt")
+
+        assert amp_allclose(mdl, im)
         LOGGER.info(f"{prefix}checks passed ✅")
     except ConnectionError:
         LOGGER.warning(f"{prefix}checks skipped ⚠️, offline and unable to download YOLOv8n. {warning_msg}")
