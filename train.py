@@ -1,12 +1,14 @@
 from argparse import ArgumentParser
 
-from ultralytics import YOLOv10
-
 from safetensors.torch import load_model
 
 from pathlib import Path
 import warnings
 import yaml
+
+from timeit import default_timer
+
+from utils import set_env_variable, cast_logging_level
 
 
 def load_yolo_model(
@@ -15,7 +17,8 @@ def load_yolo_model(
         model_type: str = "",
         task: str = "detect"
 ):
-    model_versions = (3, 5, 6, 8, 9, 10, 11)
+    # check settings
+    model_versions = (3, 5, 6, 8, 9, 10)
     if model_version not in model_versions:
         raise ValueError(f"Available model versions are {model_versions} but you requested: {model_version}.")
 
@@ -90,6 +93,8 @@ if __name__ == "__main__":
     parser.add_argument("--name", default="exp", help="experiment name, results saved to 'project/name' directory")
     parser.add_argument("--process-title", type=str, default=None, help="Names the process")
     parser.add_argument("--verbose", type=bool, default=True, help="whether to print verbose output")
+    # parser.add_argument("--logging-level", type=str, default="INFO", help="Logging level")
+    parser.add_argument("--config-dir", type=str, default=None, help="Path to local config dir, e.g. where the 'settings.yaml' is stored to.")
 
     parser.add_argument("--save-period", type=int, default=-1, help='Save checkpoint every x epochs (disabled if < 1)')
     parser.add_argument("--save", action="store_true", help="save train checkpoints and predict results")
@@ -109,6 +114,15 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
+    # set local config dir
+    if args.config_dir:
+        set_env_variable("YOLO_CONFIG_DIR", args.config_dir)
+
+    # load ultralytics library after setting environment variables
+    from ultralytics import YOLOv10
+    from ultralytics.utils import LOGGER
+
+    # LOGGER.setLevel(cast_logging_level(args.logging_level))
 
     set_process_title(args.process_title)
 
