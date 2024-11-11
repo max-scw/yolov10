@@ -1,3 +1,4 @@
+import logging
 from argparse import ArgumentParser
 
 from safetensors.torch import load_model
@@ -119,32 +120,41 @@ if __name__ == "__main__":
 
     # load ultralytics library after setting environment variables
     from ultralytics import YOLOv10
-    from ultralytics.utils import LOGGER
+    from ultralytics.utils import LOGGING_NAME
 
-    # LOGGER.setLevel(cast_logging_level(args.logging_level))
+    # set logging level
+    logger = logging.getLogger(LOGGING_NAME)
+    logging_level = cast_logging_level(args.logging_level)
+    logger.setLevel(logging_level)
+    for el in logger.handlers:
+        el.setLevel(logging_level)
+
+    logger.debug(f"Input arguments train.py: {args}")
 
     set_process_title(args.process_title)
 
     default_args = read_yaml_file(Path("ultralytics/cfg/default.yaml"))
 
     if (Path(args.weights).suffix == ".safetensors") and args.model_version and args.model_type:
-        print(f"Loading model YOLOv{args.model_version}{args.model_type} from safetensors file: {args.weights}")
+        logger.info(f"Loading model YOLOv{args.model_version}{args.model_type} from safetensors file: {args.weights}")
         model = load_yolo_model(args.weights, args.model_version, args.model_type)
     elif Path(args.weights).suffix == ".pt":
-        print(f"Loading model from pickle file: {args.weights}")
+        logger.info(f"Loading model from pickle file: {args.weights}")
         # load model from pickle file
         model = YOLOv10(model=args.weights)
     elif args.model:
         if args.weights:
-            print(f"Download pretrained model: {args.weights}")
+            logger.info(f"Download pretrained model: {args.weights}")
             # load pretrained model
             model = YOLOv10.from_pretrained(args.weights)
         else:
-            print(f"Create new model with random weights.")
+            logger.info(f"Create new model with random weights.")
             # create new model from scratch
             model = YOLOv10(task=args.task)
     else:
         raise ValueError("You must provide either --model or --model-version and --model-type.")
+    t2 = default_timer()
+    logger.debug(f"Building model took {(t2 - t1) * 1000:.4g} ms")
 
     # Train the model
     model.train(
