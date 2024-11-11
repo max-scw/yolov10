@@ -1,0 +1,17 @@
+#settings_version: 0.0.4
+#datasets_dir: C:\Users\schwmax\Proj\Coding\datasets
+#weights_dir: C:\Users\schwmax\Proj\Coding\YOLOv10\weights
+#runs_dir: C:\Users\schwmax\Proj\Coding\YOLOv10\runs
+#uuid: 16652b2b014d1766859a883b5c12d77cb538a88abebbfd475e72b5123eb16194
+sync: true
+api_key: ''
+openai_api_key: ''
+clearml: false
+comet: false
+dvc: false
+hub: false
+mlflow: false
+neptune: false
+raytune: false
+tensorboard: false
+wandb: false

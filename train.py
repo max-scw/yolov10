@@ -94,10 +94,9 @@ if __name__ == "__main__":
     parser.add_argument("--process-title", type=str, default=None, help="Names the process")
     parser.add_argument("--verbose", type=bool, default=True, help="whether to print verbose output")
     # parser.add_argument("--logging-level", type=str, default="INFO", help="Logging level")
-    parser.add_argument("--config-dir", type=str, default=None, help="Path to local config dir, e.g. where the 'settings.yaml' is stored to.")
+    parser.add_argument("--config-dir", type=str, default="settings", help="Path to local config dir, e.g. where the 'settings.yaml' is stored to.")
 
     parser.add_argument("--save-period", type=int, default=-1, help='Save checkpoint every x epochs (disabled if < 1)')
-    parser.add_argument("--save", action="store_true", help="save train checkpoints and predict results")
     parser.add_argument("--resume", action="store_true", help="resume training from last checkpoint")
 
     # augmentation
