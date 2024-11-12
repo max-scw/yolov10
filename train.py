@@ -6,41 +6,7 @@ import yaml
 
 from timeit import default_timer
 
-from utils import set_env_variable, cast_logging_level
-
-
-def load_yolo_model(
-        weights: str | Path,
-        model_version: int,
-        model_type: str = "",
-        task: str = "detect"
-):
-    # check settings
-    model_versions = (3, 5, 6, 8, 9, 10)
-    if model_version not in model_versions:
-        raise ValueError(f"Available model versions are {model_versions} but you requested: {model_version}.")
-
-    # build path to model config
-    path_to_config = Path(f"ultralytics/cfg/models/v{model_version}")
-    path_to_model_config = path_to_config /f"yolov{model_version}{model_type}.yaml"
-    if not path_to_model_config.exists():
-        raise ValueError(
-            f"Model type yolov{model_versions}{model_type} is not available. "
-            f"The following types are available for YOLOv{model_versions}: {[fl.name for fl in path_to_model_config.glob('*.yaml')]}"
-        )
-
-    model = YOLOv10(model=path_to_model_config.as_posix(), task=task)
-
-    weights = Path(weights)
-    if weights.exists() and weights.is_file():
-        if weights.suffix == ".safetensors":
-            load_model(model, weights)
-        else:
-            raise ValueError(f"Weights were expected to be saved as safetensors, but file was {weights.as_posix()}")
-
-    return model
-
-from utils import set_env_variable, set_logging_level, set_process_title, load_yolo_model
+from utils import set_env_variable, set_logging_level, set_process_title, load_yolo_from_file
 
 
 def read_yaml_file(file_path) -> dict | None:
@@ -61,7 +27,6 @@ if __name__ == "__main__":
     parser.add_argument("--data", type=str, help="path to data file, i.e. coco128.yaml")
 
     # model
-    parser.add_argument("--model", type=str, help="path to model file, i.e. yolov8n.pt, yolov8n.yaml")
     parser.add_argument("--model-version", type=int, default=None, help="YOLO version number (3, 5, 6, 8, 9, 10)")
     parser.add_argument("--model-type", type=str, default=None, help="YOLO model type. (e.g b, l, m, n, s, x for YOLO version 10)")
     parser.add_argument("--weights", type=str, default=None, help="initial weights path")  # e.g. jameslahm/yolov10n
@@ -120,26 +85,7 @@ if __name__ == "__main__":
 
     default_args = read_yaml_file(Path("ultralytics/cfg/default.yaml"))
 
-    if (Path(args.weights).suffix == ".safetensors") and args.model_version and args.model_type:
-        logger.info(f"Loading model YOLOv{args.model_version}{args.model_type} from safetensors file: {args.weights}")
-        model = load_yolo_model(args.weights, args.model_version, args.model_type)
-    elif Path(args.weights).suffix == ".pt":
-        logger.info(f"Loading model from pickle file: {args.weights}")
-        # load model from pickle file
-        model = YOLOv10(model=args.weights)
-    elif args.model:
-        if args.weights:
-            logger.info(f"Download pretrained model: {args.weights}")
-            # load pretrained model
-            model = YOLOv10.from_pretrained(args.weights)
-        else:
-            logger.info(f"Create new model with random weights.")
-            # create new model from scratch
-            model = YOLOv10(task=args.task)
-    else:
-        raise ValueError("You must provide either --model or --model-version and --model-type.")
-    t2 = default_timer()
-    logger.debug(f"Building model took {(t2 - t1) * 1000:.4g} ms")
+    model = load_yolo_from_file(args.weights, args.model_version, args.model_type, args.task)
 
     # Train the model
     model.train(
