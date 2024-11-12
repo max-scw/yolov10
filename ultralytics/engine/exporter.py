@@ -258,14 +258,15 @@ class Exporter:
         )
         self.pretty_name = Path(self.model.yaml.get("yaml_file", self.file)).stem.replace("yolo", "YOLO")
         data = model.args["data"] if hasattr(model, "args") and isinstance(model.args, dict) else ""
-        description = f'Ultralytics {self.pretty_name} model {f"trained on {data}" if data else ""}'
+        description = f'{self.pretty_name} model {f"trained on {data}" if data else ""}'
         self.metadata = {
             "description": description,
-            "author": "Ultralytics",
+            "author": self.args.author if hasattr(self.args, "author") else "Ultralytics",
             "date": datetime.now().isoformat(),
             "version": __version__,
-            "license": "AGPL-3.0 License (https://ultralytics.com/license)",
-            "docs": "https://docs.ultralytics.com",
+            "license": self.args.license if hasattr(self.args, "license") else "AGPL-3.0 License",
+            "docs": "This is a fork of the ultralytics package. Find their docs at https://docs.ultralytics.com",
+            "github project": self.args.github_project if hasattr(self.args, "github_project") else "",
             "stride": int(max(model.stride)),
             "task": model.task,
             "batch": self.args.batch,
@@ -355,7 +356,7 @@ class Exporter:
         """YOLOv8 ONNX export."""
         requirements = ["onnx>=1.12.0"]
         if self.args.simplify:
-            requirements += ["onnxslim==0.1.31", "onnxruntime" + ("-gpu" if torch.cuda.is_available() else "")]
+            requirements += ["onnxslim>=0.1.31", "onnxruntime" + ("-gpu" if torch.cuda.is_available() else "")]
         check_requirements(requirements)
         import onnx  # noqa
 

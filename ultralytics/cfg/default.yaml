@@ -126,7 +126,12 @@ cfg: # (str, optional) for overriding defaults.yaml
 # Tracker settings -----------------------------------------------------------------------------------------------------
 tracker: botsort.yaml # (str) tracker type, choices=[botsort.yaml, bytetrack.yaml]
 
-# Custom albumentation-based augmentation config------------------------------------------------------------------------
+# Custom albumentation-based augmentation config -----------------------------------------------------------------------
 albumentations_config_file: null
 albumentations_p: 1.0
 overwrite_p: False
+
+# Custom export config -------------------------------------------------------------------------------------------------
+author: unknown
+github-project: https://github.com/max-scw/yolov10
+license: AGPL-3.0 License
