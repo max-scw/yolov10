@@ -2,7 +2,7 @@ import warnings
 
 from .env import cast, set_env_variable, get_env_variable
 from .logging import cast_logging_level, set_logging_level
-from .model import load_yolo_model
+from .model import load_yolo_model, load_yolo_from_file
 
 def set_process_title(process_title: str = "") -> None:
     if process_title:
@@ -22,5 +22,6 @@ __all__ = [
     "cast_logging_level",
     "set_logging_level",
     "load_yolo_model",
-    "set_process_title"
+    "load_yolo_from_file",
+    "set_process_title",
 ]
