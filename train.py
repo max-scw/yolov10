@@ -1,10 +1,7 @@
 import logging
 from argparse import ArgumentParser
 
-from safetensors.torch import load_model
-
 from pathlib import Path
-import warnings
 import yaml
 
 from timeit import default_timer
@@ -43,16 +40,7 @@ def load_yolo_model(
 
     return model
 
-
-def set_process_title(process_title: str = "") -> None:
-    if process_title:
-        try:
-            from setproctitle import setproctitle
-            setproctitle(process_title)
-        except ModuleNotFoundError as ex:
-            warnings.warn(f"Package 'setproctitle' not installed. Process could not be named.")
-        except Exception as ex:
-            raise Exception(f"Process could not be named: {ex}")
+from utils import set_env_variable, set_logging_level, set_process_title, load_yolo_model
 
 
 def read_yaml_file(file_path) -> dict | None:
@@ -76,9 +64,10 @@ if __name__ == "__main__":
     parser.add_argument("--model", type=str, help="path to model file, i.e. yolov8n.pt, yolov8n.yaml")
     parser.add_argument("--model-version", type=int, default=None, help="YOLO version number (3, 5, 6, 8, 9, 10)")
     parser.add_argument("--model-type", type=str, default=None, help="YOLO model type. (e.g b, l, m, n, s, x for YOLO version 10)")
+    parser.add_argument("--weights", type=str, default=None, help="initial weights path")  # e.g. jameslahm/yolov10n
+
     parser.add_argument("--freeze", nargs="+", type=int, default=[0],
                         help="freeze first n layers, or freeze list of layer indices during training")
-    parser.add_argument("--weights", type=str, default=None, help="initial weights path")  # e.g. jameslahm/yolov10n
     parser.add_argument("--img-size", type=int, default=640, help="Image size")
     parser.add_argument("--task", type=str, default="detect", help="YOLO task, i.e. detect, segment, classify, pose")
 
@@ -93,7 +82,7 @@ if __name__ == "__main__":
 
     parser.add_argument("--name", default="exp", help="experiment name, results saved to 'project/name' directory")
     parser.add_argument("--process-title", type=str, default=None, help="Names the process")
-    parser.add_argument("--verbose", type=bool, default=True, help="whether to print verbose output")
+    parser.add_argument("--verbose", action="store_true", help="whether to print verbose output")
     # parser.add_argument("--logging-level", type=str, default="INFO", help="Logging level")
     parser.add_argument("--config-dir", type=str, default="settings", help="Path to local config dir, e.g. where the 'settings.yaml' is stored to.")
 
@@ -123,11 +112,7 @@ if __name__ == "__main__":
     from ultralytics.utils import LOGGING_NAME
 
     # set logging level
-    logger = logging.getLogger(LOGGING_NAME)
-    logging_level = cast_logging_level(args.logging_level)
-    logger.setLevel(logging_level)
-    for el in logger.handlers:
-        el.setLevel(logging_level)
+    logger = set_logging_level(LOGGING_NAME, args.logging_level)
 
     logger.debug(f"Input arguments train.py: {args}")
 
