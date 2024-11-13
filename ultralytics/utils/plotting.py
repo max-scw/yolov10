@@ -711,7 +711,7 @@ def plot_images(
     fname="images.jpg",
     names=None,
     on_plot=None,
-    max_subplots=16,
+    max_subplots: int = 64,
     save=True,
     conf_thres=0.25,
 ):
