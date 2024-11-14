@@ -66,6 +66,9 @@ if __name__ == "__main__":
     parser.add_argument("--erasing", type=float, default=0.4,
                         help="Hyperparameter for augmentation: probability of random erasing during classification training (0-1)")
 
+    parser.add_argument("--logging-level", type=str, default="INFO", help="Set logging level")
+
+
     args = parser.parse_args()
 
     # set local config dir
