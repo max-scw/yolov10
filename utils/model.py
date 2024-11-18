@@ -29,7 +29,7 @@ def load_yolo_model(
     model = YOLOv10(model=path_to_model_config.as_posix(), task=task)
 
     if weights and (Path(weights).exists() and Path(weights).is_file()):
-        if weights.suffix == ".safetensors":
+        if Path(weights).suffix == ".safetensors":
             load_model(model, weights)
         else:
             raise ValueError(f"Weights were expected to be saved as safetensors, but file was {weights.as_posix()}")
