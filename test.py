@@ -1,25 +1,29 @@
-from argparse import ArgumentParser
-
-from utils import load_yolo_from_file
+from utils import (
+    load_yolo_from_file,
+    build_argument_parser_from_yaml_file,
+    add_arguments_build_model,
+    parse_arguments_defaults
+)
 
 
 if __name__ == '__main__':
-    parser = ArgumentParser()
+    parser, config = build_argument_parser_from_yaml_file()
     # model
-    parser.add_argument("--model-version", type=int, default=None, help="YOLO version number (3, 5, 6, 8, 9, 10)")
-    parser.add_argument("--model-type", type=str, default=None, help="YOLO model type. (e.g b, l, m, n, s, x for YOLO version 10)")
-    parser.add_argument("--weights", type=str, default=None, help="initial weights path")  # e.g. jameslahm/yolov10n
-    # data
-    parser.add_argument("--data", type=str, help="path to data file, i.e. coco128.yaml")
+    parser = add_arguments_build_model(parser)
 
-    args = parser.parse_args()
+    args, logger = parse_arguments_defaults(parser)
+
+
 
     model = load_yolo_from_file(args.weights, args.model_version, args.model_type)
 
+    if args.augment:
+        logger.info("Augmentation disabled to evaluate the test data.")
+        args.augment = False
+    if not args.device:
+        logger.info("Augmentation disabled to evaluate the test data.")
+        args.device = "cpu"
 
-    kwargs = {"augment": False}
-    if args.data:
-        kwargs = {"data": args.data}
 
     # load model
-    model.val(**kwargs)
+    model.val(**{ky: vl for ky, vl in args.__dict__.items() if ky in config.keys()})
