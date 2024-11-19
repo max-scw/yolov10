@@ -48,8 +48,6 @@ if __name__ == "__main__":
     parser.add_argument("--name", default="exp", help="experiment name, results saved to 'project/name' directory")
     parser.add_argument("--process-title", type=str, default=None, help="Names the process")
     parser.add_argument("--verbose", action="store_true", help="whether to print verbose output")
-    # parser.add_argument("--logging-level", type=str, default="INFO", help="Logging level")
-    parser.add_argument("--config-dir", type=str, default="settings", help="Path to local config dir, e.g. where the 'settings.yaml' is stored to.")
 
     parser.add_argument("--save-period", type=int, default=-1, help='Save checkpoint every x epochs (disabled if < 1)')
     parser.add_argument("--resume", action="store_true", help="resume training from last checkpoint")
@@ -66,6 +64,8 @@ if __name__ == "__main__":
     parser.add_argument("--erasing", type=float, default=0.4,
                         help="Hyperparameter for augmentation: probability of random erasing during classification training (0-1)")
 
+    # TODO: argparser utils
+    parser.add_argument("--config-dir", type=str, default="settings", help="Path to local config dir, e.g. where the 'settings.yaml' is stored to.")
     parser.add_argument("--logging-level", type=str, default="INFO", help="Set logging level")
 
 
@@ -86,6 +86,11 @@ if __name__ == "__main__":
 
     set_process_title(args.process_title)
 
+    # freeze all layers up to the given layer if only one number was provided
+    if len(args.freeze) == 1:
+        args.freeze = list(range(0, args.freeze[0]))
+
+    t0 = default_timer()
     default_args = read_yaml_file(Path("ultralytics/cfg/default.yaml"))
 
     model = load_yolo_from_file(args.weights, args.model_version, args.model_type, args.task)
