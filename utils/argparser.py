@@ -79,6 +79,7 @@ def build_argument_parser_from_yaml_file(
 
     return parser, config
 
+
 def parse_argument_parser_config_from_file(
         config_file: Union[str, Path] = "ultralytics/cfg/default.yaml"
 ) -> Union[List[Tuple[str, Dict[str, Any]]], Dict[str, Any]]:
@@ -112,7 +113,7 @@ def parse_argument_parser_config_from_file(
 
                 arg_key = ky
                 arg_default_value = vl
-                arg_type = type(vl)
+                arg_type = str if vl is None else type(vl)
 
                 kwargs = dict()
                 if arg_type == bool:
