@@ -234,6 +234,7 @@ class DetectionValidator(BaseValidator):
             fname=self.save_dir / f"val_batch{ni}_labels.jpg",
             names=self.names,
             on_plot=self.on_plot,
+            conf_thres=self.args.conf
         )
 
     def plot_predictions(self, batch, preds, ni):
