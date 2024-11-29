@@ -100,7 +100,6 @@ def parse_argument_parser_config_from_file(
         while True:
             # current line
             ln = lines[i]
-            print(ln)
 
             # find the key-value pair
             m1 = re.match(re_kwarg, ln)
