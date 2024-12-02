@@ -5,7 +5,7 @@ from pathlib import Path
 import re
 import warnings
 
-from .env import set_env_variable
+from .env import set_env_variable, cast
 from .logging import set_logging_level
 
 from typing import Union, Tuple, List, Dict, Any
@@ -36,6 +36,9 @@ def parse_arguments_defaults(parser: ArgumentParser) -> (Namespace, Logger):
     parser.add_argument("--logging-level", type=str, default="INFO", help="Set logging level")
 
     args = parser.parse_args()
+
+    if isinstance(args.freeze, str):
+        args.freeze = cast(args.freeze)
 
     # set local config dir
     if args.config_dir:
